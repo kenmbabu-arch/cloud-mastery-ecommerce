@@ -41,6 +41,7 @@ export default function ShopHome() {
                 src="/mastery_commerce.png"
                 alt="Cloud Mastery Commerce"
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 priority
                 className="object-cover"
               />

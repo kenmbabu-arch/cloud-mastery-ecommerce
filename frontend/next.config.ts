@@ -20,6 +20,9 @@ const nextConfig: NextConfig = {
         hostname: "storage.googleapis.com",
         pathname: "/cloud_mastery_images/**",
       },
+      { hostname: "loremflickr.com" },
+      { hostname: "placehold.co" },
+      { hostname: "images.unsplash.com" }
     ],
   },
 };

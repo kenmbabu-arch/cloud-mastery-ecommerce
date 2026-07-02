@@ -1,5 +1,5 @@
 import axios from "axios";
-const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081/api/v1";
 export const API_URL = rawApiUrl.replace(/\/+$/, "");
 import { CustomersType } from "./types/CustomersType";
 
