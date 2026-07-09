@@ -37,6 +37,7 @@ jobs:
           : "${{ secrets.CLOUD_RUN_BACKEND_SERVICE_NAME }}"
           : "${{ secrets.CLOUD_RUN_FRONTEND_SERVICE_NAME }}"
           : "${{ secrets.CLOUDSQL_INSTANCE_CONNECTION_NAME }}"
+          : "${{ secrets.MYSQL_PRISMA_URL }}"
           : "${{ secrets.DB_USER }}"
           : "${{ secrets.DB_PASSWORD || secrets.DB_PASS }}"
           : "${{ secrets.DB_NAME }}"
@@ -125,7 +126,7 @@ jobs:
             --service-account=$DEPLOYER_SERVICE_ACCOUNT \
             --port 8080 \
             --allow-unauthenticated \
-            --set-secrets="MYSQL_PRISMA_URL=MYSQL_PRISMA_URL:latest" \
+            --set-env-vars "MYSQL_PRISMA_URL=${{ secrets.MYSQL_PRISMA_URL }}" \
             --add-cloudsql-instances=${{ secrets.CLOUDSQL_INSTANCE_CONNECTION_NAME }}
 
         # Run Prisma migrations and seed database
