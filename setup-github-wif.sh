@@ -111,10 +111,15 @@ for ROLE in \
   roles/run.admin \
   roles/cloudfunctions.admin \
   roles/cloudsql.client \
+  roles/iap.tunnelResourceAccessor \
   roles/iap.httpsResourceAccessor \
+  roles/iam.serviceAccountTokenCreator \
   roles/iam.serviceAccountUser \
+  roles/serviceusage.serviceUsageAdmin \
+  roles/secretmanager.admin \
   roles/secretmanager.secretAccessor \
   roles/storage.admin \
+  roles/storage.objectViewer \
   roles/logging.logWriter \
   roles/artifactregistry.writer \
   roles/artifactregistry.createOnPushWriter \
