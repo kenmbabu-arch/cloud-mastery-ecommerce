@@ -207,7 +207,7 @@ jobs:
       PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
       REGION: ${{ secrets.GCP_REGION }}
       DEPLOYER_SERVICE_ACCOUNT: ${{ secrets.GCP_DEPLOYER_SERVICE_ACCOUNT_EMAIL || secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
-      CART_AGENT_FUNCTION_NAME: cart-agent
+      CART_AGENT_FUNCTION_NAME: checkout-service
       CONNECT_BIGQUERY_FUNCTION_NAME: sync-mysql-to-bq
       CAR_PARTS_FUNCTION_NAME: car-parts
       SEARCH_PRODUCTS_FUNCTION_NAME: search-products

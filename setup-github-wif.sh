@@ -103,6 +103,7 @@ echo "Applying roles in deploy project..."
 for ROLE in \
   roles/cloudbuild.builds.editor \
   roles/cloudbuild.builds.builder \
+  roles/bigquery.admin \
   roles/run.admin \
   roles/cloudfunctions.admin \
   roles/cloudsql.admin \
@@ -224,6 +225,13 @@ gcloud iam service-accounts add-iam-policy-binding "${SA_EMAIL}" \
 gcloud iam service-accounts add-iam-policy-binding "${SA_EMAIL}" \
   --project "${WIF_PROJECT_ID}" \
   --member "${REPO_PRINCIPAL}" \
+  --role roles/iam.serviceAccountTokenCreator \
+  --quiet
+
+echo "Granting service account self token-creator binding (iam.serviceAccounts.getAccessToken)..."
+gcloud iam service-accounts add-iam-policy-binding "${SA_EMAIL}" \
+  --project "${WIF_PROJECT_ID}" \
+  --member "serviceAccount:${SA_EMAIL}" \
   --role roles/iam.serviceAccountTokenCreator \
   --quiet
 
