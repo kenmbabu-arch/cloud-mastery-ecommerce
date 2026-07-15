@@ -235,6 +235,88 @@ gcloud iam service-accounts add-iam-policy-binding "${SA_EMAIL}" \
   --role roles/iam.serviceAccountTokenCreator \
   --quiet
 
+echo "Verifying required IAM roles and bindings for ${SA_EMAIL}..."
+IAM_VERIFY_FAILED=0
+
+for ROLE in \
+  roles/serviceusage.serviceUsageAdmin \
+  roles/iam.serviceAccountUser \
+  roles/viewer
+do
+  if ! gcloud projects get-iam-policy "${WIF_PROJECT_ID}" \
+    --flatten="bindings[].members" \
+    --filter="bindings.role=${ROLE} AND bindings.members=serviceAccount:${SA_EMAIL}" \
+    --format='value(bindings.role)' | grep -q .; then
+    echo "Missing WIF project role for ${SA_EMAIL}: ${ROLE}"
+    IAM_VERIFY_FAILED=1
+  fi
+done
+
+for ROLE in \
+  roles/cloudbuild.builds.editor \
+  roles/cloudbuild.builds.builder \
+  roles/bigquery.admin \
+  roles/run.admin \
+  roles/cloudfunctions.admin \
+  roles/cloudsql.admin \
+  roles/cloudsql.client \
+  roles/iap.tunnelResourceAccessor \
+  roles/iap.httpsResourceAccessor \
+  roles/iam.workloadIdentityUser \
+  roles/iam.serviceAccountTokenCreator \
+  roles/iam.serviceAccountUser \
+  roles/serviceusage.serviceUsageAdmin \
+  roles/secretmanager.admin \
+  roles/secretmanager.secretAccessor \
+  roles/storage.admin \
+  roles/logging.logWriter \
+  roles/artifactregistry.writer \
+  roles/artifactregistry.createOnPushWriter \
+  roles/viewer
+do
+  if ! gcloud projects get-iam-policy "${DEPLOY_PROJECT_ID}" \
+    --flatten="bindings[].members" \
+    --filter="bindings.role=${ROLE} AND bindings.members=serviceAccount:${SA_EMAIL}" \
+    --format='value(bindings.role)' | grep -q .; then
+    echo "Missing deploy project role for ${SA_EMAIL}: ${ROLE}"
+    IAM_VERIFY_FAILED=1
+  fi
+done
+
+if ! gcloud iam service-accounts get-iam-policy "${SA_EMAIL}" \
+  --project "${WIF_PROJECT_ID}" \
+  --flatten="bindings[].members" \
+  --filter="bindings.role=roles/iam.workloadIdentityUser AND bindings.members=${REPO_PRINCIPAL}" \
+  --format='value(bindings.role)' | grep -q .; then
+  echo "Missing service-account binding: ${REPO_PRINCIPAL} -> roles/iam.workloadIdentityUser"
+  IAM_VERIFY_FAILED=1
+fi
+
+if ! gcloud iam service-accounts get-iam-policy "${SA_EMAIL}" \
+  --project "${WIF_PROJECT_ID}" \
+  --flatten="bindings[].members" \
+  --filter="bindings.role=roles/iam.serviceAccountTokenCreator AND bindings.members=${REPO_PRINCIPAL}" \
+  --format='value(bindings.role)' | grep -q .; then
+  echo "Missing service-account binding: ${REPO_PRINCIPAL} -> roles/iam.serviceAccountTokenCreator"
+  IAM_VERIFY_FAILED=1
+fi
+
+if ! gcloud iam service-accounts get-iam-policy "${SA_EMAIL}" \
+  --project "${WIF_PROJECT_ID}" \
+  --flatten="bindings[].members" \
+  --filter="bindings.role=roles/iam.serviceAccountTokenCreator AND bindings.members=serviceAccount:${SA_EMAIL}" \
+  --format='value(bindings.role)' | grep -q .; then
+  echo "Missing self binding: serviceAccount:${SA_EMAIL} -> roles/iam.serviceAccountTokenCreator"
+  IAM_VERIFY_FAILED=1
+fi
+
+if [[ "${IAM_VERIFY_FAILED}" -ne 0 ]]; then
+  echo "IAM verification failed. Fix missing bindings above and rerun."
+  exit 1
+fi
+
+echo "IAM verification passed for ${SA_EMAIL}."
+
 echo "Ensuring ${MYSQL_PRISMA_SECRET_NAME} exists in deploy project..."
 if [[ -z "${MYSQL_PRISMA_URL}" ]]; then
   if [[ -n "${DB_USER}" && -n "${DB_PASSWORD}" && -n "${DB_NAME}" && -n "${CLOUDSQL_INSTANCE_CONNECTION_NAME}" ]]; then

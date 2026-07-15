@@ -278,6 +278,76 @@ call gcloud iam service-accounts add-iam-policy-binding "!SA_EMAIL!" ^
   --quiet
 
 echo.
+echo Verifying required IAM roles and bindings for !SA_EMAIL!...
+SET "IAM_VERIFY_FAILED=0"
+
+FOR %%R IN (
+  roles/serviceusage.serviceUsageAdmin
+  roles/iam.serviceAccountUser
+  roles/viewer
+) DO (
+  call gcloud projects get-iam-policy "!WIF_PROJECT_ID!" --flatten="bindings[].members" --filter="bindings.role=%%R AND bindings.members=serviceAccount:!SA_EMAIL!" --format="value(bindings.role)" | findstr /R /C:"roles/" >NUL
+  IF ERRORLEVEL 1 (
+    echo Missing WIF project role for !SA_EMAIL!: %%R
+    SET "IAM_VERIFY_FAILED=1"
+  )
+)
+
+FOR %%R IN (
+  roles/cloudbuild.builds.editor
+  roles/cloudbuild.builds.builder
+  roles/bigquery.admin
+  roles/run.admin
+  roles/cloudfunctions.admin
+  roles/cloudsql.admin
+  roles/cloudsql.client
+  roles/iap.tunnelResourceAccessor
+  roles/iap.httpsResourceAccessor
+  roles/iam.workloadIdentityUser
+  roles/iam.serviceAccountTokenCreator
+  roles/iam.serviceAccountUser
+  roles/serviceusage.serviceUsageAdmin
+  roles/secretmanager.admin
+  roles/secretmanager.secretAccessor
+  roles/storage.admin
+  roles/logging.logWriter
+  roles/artifactregistry.writer
+  roles/artifactregistry.createOnPushWriter
+  roles/viewer
+) DO (
+  call gcloud projects get-iam-policy "!DEPLOY_PROJECT_ID!" --flatten="bindings[].members" --filter="bindings.role=%%R AND bindings.members=serviceAccount:!SA_EMAIL!" --format="value(bindings.role)" | findstr /R /C:"roles/" >NUL
+  IF ERRORLEVEL 1 (
+    echo Missing deploy project role for !SA_EMAIL!: %%R
+    SET "IAM_VERIFY_FAILED=1"
+  )
+)
+
+call gcloud iam service-accounts get-iam-policy "!SA_EMAIL!" --project "!WIF_PROJECT_ID!" --flatten="bindings[].members" --filter="bindings.role=roles/iam.workloadIdentityUser AND bindings.members=!REPO_PRINCIPAL!" --format="value(bindings.role)" | findstr /C:"roles/iam.workloadIdentityUser" >NUL
+IF ERRORLEVEL 1 (
+  echo Missing service-account binding: !REPO_PRINCIPAL! ^-> roles/iam.workloadIdentityUser
+  SET "IAM_VERIFY_FAILED=1"
+)
+
+call gcloud iam service-accounts get-iam-policy "!SA_EMAIL!" --project "!WIF_PROJECT_ID!" --flatten="bindings[].members" --filter="bindings.role=roles/iam.serviceAccountTokenCreator AND bindings.members=!REPO_PRINCIPAL!" --format="value(bindings.role)" | findstr /C:"roles/iam.serviceAccountTokenCreator" >NUL
+IF ERRORLEVEL 1 (
+  echo Missing service-account binding: !REPO_PRINCIPAL! ^-> roles/iam.serviceAccountTokenCreator
+  SET "IAM_VERIFY_FAILED=1"
+)
+
+call gcloud iam service-accounts get-iam-policy "!SA_EMAIL!" --project "!WIF_PROJECT_ID!" --flatten="bindings[].members" --filter="bindings.role=roles/iam.serviceAccountTokenCreator AND bindings.members=serviceAccount:!SA_EMAIL!" --format="value(bindings.role)" | findstr /C:"roles/iam.serviceAccountTokenCreator" >NUL
+IF ERRORLEVEL 1 (
+  echo Missing self binding: serviceAccount:!SA_EMAIL! ^-> roles/iam.serviceAccountTokenCreator
+  SET "IAM_VERIFY_FAILED=1"
+)
+
+IF NOT "!IAM_VERIFY_FAILED!"=="0" (
+  echo IAM verification failed. Fix missing bindings above and rerun.
+  exit /b 1
+)
+
+echo IAM verification passed for !SA_EMAIL!.
+
+echo.
 echo Ensuring !MYSQL_PRISMA_SECRET_NAME! exists in deploy project...
 IF "!MYSQL_PRISMA_URL!"=="" (
   IF NOT "!DB_USER!"=="" IF NOT "!DB_PASSWORD!"=="" IF NOT "!DB_NAME!"=="" IF NOT "!CLOUDSQL_INSTANCE_CONNECTION_NAME!"=="" (

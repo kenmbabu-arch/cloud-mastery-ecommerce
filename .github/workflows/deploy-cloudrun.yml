@@ -283,6 +283,7 @@ jobs:
             --runtime nodejs22 \
             --entry-point cart_agent \
             --source ./Cart-agent \
+            --service-account=$DEPLOYER_SERVICE_ACCOUNT \
             --trigger-http \
             --allow-unauthenticated \
             --memory 512Mi \
@@ -316,6 +317,7 @@ jobs:
             --runtime python311 \
             --entry-point search_parts \
             --source ./Car-parts \
+            --service-account=$DEPLOYER_SERVICE_ACCOUNT \
             --trigger-http \
             --allow-unauthenticated \
             --memory 512Mi \
@@ -331,6 +333,7 @@ jobs:
             --runtime python311 \
             --entry-point search_product \
             --source ./Search-products \
+            --service-account=$DEPLOYER_SERVICE_ACCOUNT \
             --trigger-http \
             --allow-unauthenticated \
             --memory 512Mi \
