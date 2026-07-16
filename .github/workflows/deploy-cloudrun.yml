@@ -342,7 +342,7 @@ jobs:
             --region $REGION \
             --runtime python311 \
             --entry-point search_product \
-            --source ./search-products \
+            --source ./Search-products \
             --service-account=$DEPLOYER_SERVICE_ACCOUNT \
             --trigger-http \
             --allow-unauthenticated \
