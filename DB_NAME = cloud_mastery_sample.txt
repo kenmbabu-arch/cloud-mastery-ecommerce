@@ -1,0 +1,7 @@
+DB_NAME = cloud_mastery_sample
+DB_PASS = Mastery_Cloud1
+DB_USER = Cloud_Mastery1
+CLOUDSQL_INSTANCE_CONNECTION_NAME = ken-mbabu-563f:us-central1:cloud-mastery-db-v8
+
+Project number: 883324747129 
+Project ID: ken-mbabu-563f 
