@@ -288,7 +288,7 @@ jobs:
             --allow-unauthenticated \
             --cpu 4 \
             --concurrency 80 \
-            --memory 512Mi \
+            --memory 2Gi \
             --timeout 240s \
             --quiet \
             --set-env-vars "^##^GCP_PROJECT_ID=$PROJECT_ID##BQ_PROJECT=$PROJECT_ID##BQ_DATASET=$BQ_DATASET##BQ_PRODUCTS_TABLE=$BQ_PRODUCTS_TABLE##PESAPAL_BASE_URL=${{ secrets.PESAPAL_BASE_URL }}##PESAPAL_CONSUMER_KEY=${{ secrets.PESAPAL_CONSUMER_KEY }}##PESAPAL_CONSUMER_SECRET=${{ secrets.PESAPAL_CONSUMER_SECRET }}##PESAPAL_NOTIFICATION_ID=${{ secrets.PESAPAL_NOTIFICATION_ID }}##PESAPAL_CALLBACK_URL=${{ needs.deploy-services.outputs.frontend_url }}##PESAPAL_BRANCH=${{ secrets.PESAPAL_BRANCH }}##PESAPAL_DEMO_AMOUNT=${{ secrets.PESAPAL_DEMO_AMOUNT }}##PESAPAL_PLACEHOLDER_EMAIL=${{ secrets.PESAPAL_PLACEHOLDER_EMAIL }}"
